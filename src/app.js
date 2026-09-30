@@ -2,13 +2,17 @@ const express = require("express");
 
 const app = express();
 
+app.get("/user/:userId", (req, res)=>{
+    console.log(req.params);
+    res.send("Get Response from the server")
+});
 
-app.use((req, res) =>{
-    res.send("Hello from server...");
-})
+app.post("/user", async (req, res) =>{
+    res.send("Post Request from the server")
+});
 
-app.use("/test", (req, res) =>{
-    res.send("Hello test from server...")
+app.delete("/user", (req, res) =>{
+    res.send("Delete data from db")
 })
 
 app.listen(3000, () =>{
