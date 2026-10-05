@@ -1,6 +1,23 @@
 const express = require("express");
 const connectDB = require("./config/db.js");
 const app = express();
+const User = require("./models/user.js");
+
+app.post("/signup", async (req, res) => {
+  const user = new User({
+    firstName: "Sabin",
+    lastName: "Tuitui",
+    email: "123@gmail.com",
+    password: "12345",
+  });
+  try {
+    await user.save();
+    res.send("User add Sucessfully...");
+    console.log("added data");
+  } catch (err) {
+    res.status(401).send("There is error " + err.message);
+  }
+});
 
 connectDB()
   .then(() => {
@@ -12,10 +29,6 @@ connectDB()
   .catch((err) => {
     console.error("Database has error ...");
   });
-
-
-
-  
 
 // const { adminAuth, userAuth } = require("./middlewares/auth.js");
 
