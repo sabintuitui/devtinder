@@ -40,6 +40,17 @@ app.get("/feed", async (req, res) => {
   }
 });
 
+//api call by userId
+app.get("/users", async (req, res) => {
+  const userId = req.body.userID;
+  try {
+    const user = await User.findById(userId);
+    res.send(user);
+  } catch (err) {
+    res.status(400).send("There is something error");
+  }
+});
+
 //delete API
 
 app.delete("/users", async (req, res) => {
@@ -52,6 +63,21 @@ app.delete("/users", async (req, res) => {
     res.status(400).send("There is something error");
   }
 });
+
+app.patch("/users", async(req, res) =>{
+    const userId = req.body.userId;
+    const data = req.body;
+  try{
+    const user = await User.findByIdAndUpdate(userId, data);
+    res.send("data change sucessfully");
+
+  
+  }
+  catch(err) {
+    res.status(400).send("There is something error....");
+
+  }
+})
 
 connectDB()
   .then(() => {
