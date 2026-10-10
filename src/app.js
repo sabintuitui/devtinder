@@ -2,17 +2,24 @@ const express = require("express");
 const connectDB = require("./config/db.js");
 const app = express();
 const User = require("./models/user.js");
+const { validatorSignUp } = require("./utils/validator.js");
 
 //express auth which convert json to javascript obj
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
   try {
+    // validate the data first
+    validatorSignUp(req);
+
+    // encrypt the password
+
+    const user = new User(req.body);
+
     await user.save();
     res.send("User add Sucessfully.....");
   } catch (err) {
-    res.status(401).send("There is error " + err.message);
+    res.status(400).send("ERROR : " + err.message);
   }
 });
 
@@ -64,20 +71,16 @@ app.delete("/users", async (req, res) => {
   }
 });
 
-app.patch("/users", async(req, res) =>{
-    const userId = req.body.userId;
-    const data = req.body;
-  try{
+app.patch("/users", async (req, res) => {
+  const userId = req.body.userId;
+  const data = req.body;
+  try {
     const user = await User.findByIdAndUpdate(userId, data);
     res.send("data change sucessfully");
-
-  
-  }
-  catch(err) {
+  } catch (err) {
     res.status(400).send("There is something error....");
-
   }
-})
+});
 
 connectDB()
   .then(() => {
