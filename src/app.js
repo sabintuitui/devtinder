@@ -3,6 +3,7 @@ const connectDB = require("./config/db.js");
 const app = express();
 const User = require("./models/user.js");
 const { validatorSignUp } = require("./utils/validator.js");
+const bcrypt = require("bcrypt");
 
 //express auth which convert json to javascript obj
 app.use(express.json());
@@ -12,12 +13,37 @@ app.post("/signup", async (req, res) => {
     // validate the data first
     validatorSignUp(req);
 
+    const { firstName, lastName, email, password } = req.body;
+
     // encrypt the password
+    const passwordHash = await bcrypt.hash(password, 10);
 
-    const user = new User(req.body);
-
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: passwordHash,
+    });
     await user.save();
     res.send("User add Sucessfully.....");
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
+
+app.get("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error("Email is not correct");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (isPasswordValid) {
+      res.send("Login Sucessfully");
+    } else {
+      throw new Error("Password is not Match");
+    }
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
