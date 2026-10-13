@@ -4,18 +4,20 @@ const app = express();
 const User = require("./models/user.js");
 const { validatorSignUp } = require("./utils/validator.js");
 const bcrypt = require("bcrypt");
-
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const {userAuth} = require("./middlewares/auth.js");
 //express auth which convert json to javascript obj
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
     // validate the data first
     validatorSignUp(req);
-
     const { firstName, lastName, email, password } = req.body;
 
-    // encrypt the password
+    //encryption password
     const passwordHash = await bcrypt.hash(password, 10);
 
     const user = new User({
@@ -25,13 +27,13 @@ app.post("/signup", async (req, res) => {
       password: passwordHash,
     });
     await user.save();
-    res.send("User add Sucessfully.....");
+    res.send("Users added sucessfully...");
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
 });
 
-app.get("/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
@@ -40,10 +42,34 @@ app.get("/login", async (req, res) => {
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
+      const token = await jwt.sign({ _id: user._id }, "DevTinder123");
+      res.cookie("token", token);
       res.send("Login Sucessfully");
     } else {
       throw new Error("Password is not Match");
     }
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const cookies = req.cookies;
+    const { token } = cookies;
+    if(!token){
+      throw new Error("Invalid Token");
+    }
+    const isDecodeCookie = await jwt.verify(token, "DevTinder123");
+    const { _id } = isDecodeCookie;
+    const user = await User.findById(_id);
+    if(!user){
+      throw new Error("User Not found");
+    }
+    else{
+      res.send(user);
+    }
+    
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
