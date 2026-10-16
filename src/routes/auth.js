@@ -38,7 +38,9 @@ authRouter.post("/login", async (req, res) => {
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
-      const token = await jwt.sign({ _id: user._id }, "DevTinder123", {expiresIn: "7d"});
+      const token = await jwt.sign({ _id: user._id }, "DevTinder123", {
+        expiresIn: "7d",
+      });
       res.cookie("token", token);
       res.send("Login Sucessfully");
     } else {
@@ -49,4 +51,8 @@ authRouter.post("/login", async (req, res) => {
   }
 });
 
+authRouter.post("/logout", async (req, res) => {
+  res.cookie("token", null, { expires: new Date(Date.now()) });
+  res.send();
+});
 module.exports = authRouter;
