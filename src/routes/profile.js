@@ -31,10 +31,19 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
       throw new Error("Invalid Edit field");
     }
     const loggedInUser = req.user;
-    Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
+        Object.keys(req.body).forEach((key) => (loggedInUser[key] = req.body[key]));
     console.log(loggedInUser);
     await loggedInUser.save();
     res.send("Profile Edit Successfull...");
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
+
+profileRouter.patch("profile/forgotPassword", userAuth, async (req, res) => {
+  try {
+    const { password } = req.body;
+    
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
