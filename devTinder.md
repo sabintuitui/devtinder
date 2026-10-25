@@ -14,13 +14,12 @@ patch/profile/password
 post/request/send/intrested/:userId
 post/request/send/ignored/:userId
 
-
 post/request/review/accpeted/:requestId
 post/request/review/rejected/:requestId
 
 #userRouter
 get/user/connections
-get/user/requests
+get/user/requests/received
 get/feed
 
 
