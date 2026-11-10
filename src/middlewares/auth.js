@@ -6,14 +6,14 @@ const userAuth = async (req, res, next) => {
     const cookies = req.cookies;
     const { token } = cookies;
     if (!token) {
-      throw new Error("Invalid Token");
+      return res.status(401).send("Please Login!");
     }
     const decodedObj = await jwt.verify(token, "DevTinder123");
     const { _id } = decodedObj;
     const user = await User.findById(_id);
 
     if (!user) {
-      throw new Error("User  Not found");
+       return res.status(401).send("Please Login!");
     }
     req.user= user;
     next();

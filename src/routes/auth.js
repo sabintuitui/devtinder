@@ -23,8 +23,12 @@ authRouter.post("/signup", async (req, res) => {
       email,
       password: passwordHash,
     });
-    await user.save();
-    res.send("Users added sucessfully...");
+    const savedUser = await user.save();
+    const token = await jwt.sign({ _id: savedUser._id }, "DevTinder123", {
+      expiresIn: "7d",
+    });
+    res.cookie("token", token);
+    res.json({ message: "Users added sucessfully...", data: savedUser });
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
@@ -35,7 +39,7 @@ authRouter.post("/login", async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
     if (!user) {
-      throw new Error("Email is not correct");
+      return res.status(401).send("Please Login!");
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
@@ -43,7 +47,7 @@ authRouter.post("/login", async (req, res) => {
         expiresIn: "7d",
       });
       res.cookie("token", token);
-      res.send("Login Sucessfully");
+      res.json({message:"Login Sucessfully : ", data: user});
     } else {
       throw new Error("Password is not Match");
     }

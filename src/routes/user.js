@@ -34,7 +34,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       ],
     })
       .populate("fromUserId", SAFE_DATA)
-      .populated("toUserId", SAFE_DATA);
+      .populate("toUserId", SAFE_DATA);
 
     const data = connectionRequest.map((row) => {
       if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
@@ -77,7 +77,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    res.send(users);
+    res.json({data:users});
   } catch (err) {
     res.status(400).send("ERROR :" + err.message);
   }
